@@ -1,0 +1,1042 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LonghornBull 5.2 - Gaming Portal</title>
+
+<style>
+:root {
+ --blue:#398bd0;
+ --dark:#164b77;
+ --glass:rgba(235,247,255,.79);
+ --line:rgba(255,255,255,.95);
+}
+*{box-sizing:border-box}
+body{
+ margin:0;font-family:"Segoe UI",Tahoma,Arial;
+ color:#194b72;
+ background:radial-gradient(ellipse at 20% 0%,#f3fcff,#a8cce9 55%,#658eb9);
+ min-height:100vh;
+}
+header{
+ height:83px;padding:10px 24px;display:flex;
+ align-items:center;justify-content:space-between;
+ background:linear-gradient(#fff,#d4ebfb 48%,#8bb8df);
+ border-bottom:1px solid white;
+ box-shadow:0 3px 14px #315e8355;
+ position:sticky;top:0;z-index:10;
+}
+.logo{font-size:29px;font-weight:bold;letter-spacing:-1px}
+.logo span{color:#489ddd}
+.tagline{font-size:10px;letter-spacing:2px;color:#47799e}
+.clock{
+ text-align:center;padding:7px 18px;border-radius:12px;
+ background:linear-gradient(#ffffffdd,#91bee4bb);
+ border:1px solid white;box-shadow:inset 0 1px 5px white;
+ min-width:130px;
+}
+#time{font-size:22px;font-weight:bold}
+#date{font-size:11px}
+.layout{display:flex;gap:15px;padding:17px;align-items:flex-start}
+.sidebar{
+ width:215px;flex-shrink:0;padding:13px;border-radius:14px;
+ background:linear-gradient(145deg,#f5fbffdd,#8dbbe0cc);
+ border:1px solid white;box-shadow:0 5px 18px #244d7044,inset 0 1px 5px white;
+ backdrop-filter:blur(15px);
+}
+.side-title{
+ font-size:11px;font-weight:bold;color:#4b80a5;
+ padding:8px;border-bottom:1px solid white;margin-bottom:7px;
+}
+.nav{
+ display:block;width:100%;padding:10px;margin:4px 0;
+ text-align:left;border-radius:7px;border:1px solid transparent;
+ color:#194b74;background:transparent;cursor:pointer;font-size:13px;
+}
+.nav:hover,.nav.active{
+ background:linear-gradient(#fff,#b9dcf5);
+ border-color:white;box-shadow:0 2px 5px #456e9144;
+}
+.sidebox{
+ margin-top:15px;padding:11px;background:#ffffff77;
+ border:1px solid white;border-radius:9px;font-size:11px;line-height:1.8;
+}
+main{
+ flex:1;min-width:0;padding:18px;border-radius:15px;
+ background:linear-gradient(140deg,#f5fbffdd,#b1d3edbb);
+ border:1px solid white;box-shadow:0 5px 20px #244d7044,inset 0 1px 5px white;
+ backdrop-filter:blur(12px);
+}
+.welcome{
+ padding:18px;margin-bottom:15px;border-radius:11px;
+ background:linear-gradient(120deg,#edf9ff,#9dc8e9);
+ border:1px solid white;
+}
+.welcome h1{margin:0 0 6px;font-size:24px}
+.welcome p{margin:0;font-size:13px;color:#365e7d}
+.toolbar{display:flex;gap:9px;margin-bottom:15px}
+.search{
+ flex:1;min-width:0;padding:11px 13px;border-radius:8px;
+ border:1px solid #8eb9d9;background:#ffffffed;outline:none;
+ color:#173d60;
+}
+.search:focus{border-color:#368bc7;box-shadow:0 0 5px #56a9ed}
+select,.smallbtn{
+ padding:9px;border-radius:7px;border:1px solid #9bbdd9;
+ background:linear-gradient(#fff,#d6eaf8);color:#194b74;cursor:pointer;
+}
+.section-title{
+ font-size:17px;margin:0 0 13px;padding-bottom:9px;
+ border-bottom:1px solid white;
+}
+.games{
+ display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+ gap:13px;
+}
+.game{
+ min-width:0;padding:8px;border-radius:10px;
+ background:linear-gradient(145deg,#fffddd,#c4e0f3);
+ border:1px solid white;box-shadow:0 2px 7px #355d7d33;
+ transition:.18s;
+}
+.game:hover{transform:translateY(-3px);box-shadow:0 5px 13px #315c8055}
+.artwork{
+ width:100%;aspect-ratio:460/215;object-fit:cover;
+ display:block;border-radius:6px;background:linear-gradient(135deg,#357ab3,#9bcbea);
+}
+.game-name{
+ display:block;font-weight:bold;font-size:12px;color:#194b74;
+ margin:8px 2px 5px;min-height:29px;
+}
+.game-name:hover{color:#1686d1}
+.game-actions{display:flex;justify-content:space-between;gap:4px}
+.game-link{
+ font-size:10px;color:#2474ae;text-decoration:underline;
+ cursor:pointer;border:0;background:none;padding:3px 0;
+}
+.game-link:hover{color:#004c91}
+.favorite{font-size:15px;border:0;background:none;cursor:pointer;color:#8c9eae}
+.favorite.on{color:#e3a11a}
+.empty{text-align:center;padding:35px;display:none}
+footer{
+ margin-top:22px;padding:15px;text-align:center;font-size:11px;
+ color:#365e7d;border-top:1px solid white;line-height:1.8;
+}
+a{color:#2474ae}
+
+/* DETAIL WINDOW */
+
+.overlay{
+ display:none;position:fixed;inset:0;z-index:30;
+ background:#09233d99;backdrop-filter:blur(5px);
+ align-items:center;justify-content:center;padding:15px;
+}
+.modal{
+ width:min(780px,100%);max-height:90vh;overflow:auto;
+ border-radius:14px;background:linear-gradient(145deg,#f4fbff,#b9d9f1);
+ border:1px solid white;box-shadow:0 12px 45px #061c38aa;
+}
+.modal-head{
+ display:flex;justify-content:space-between;align-items:center;
+ padding:12px 16px;background:linear-gradient(#fff,#a8d0ee);
+ border-bottom:1px solid white;font-weight:bold;
+ position:sticky;top:0;
+}
+.close{
+ border:1px solid white;border-radius:6px;background:#eaf6ff;
+ color:#245c89;padding:5px 11px;cursor:pointer;
+}
+.modal-content{padding:17px}
+.hero{
+ width:100%;max-height:250px;object-fit:cover;border-radius:9px;
+ border:1px solid white;background:#6b9cc3;
+}
+.detail-desc{font-size:14px;line-height:1.7}
+.detail-links{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}
+.action{
+ display:inline-block;text-decoration:none;padding:10px 14px;
+ border-radius:7px;background:linear-gradient(#fff,#9bc8e9);
+ border:1px solid white;color:#174b77;font-size:12px;font-weight:bold;
+ cursor:pointer;
+}
+.screenshots{
+ display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:12px;
+}
+.screenshots img{
+ width:100%;border-radius:7px;border:1px solid white;
+ background:#7199bc;min-height:70px;object-fit:cover;
+}
+.rating{
+ padding:12px;border-radius:9px;background:#ffffff88;border:1px solid white;
+ margin-top:15px;
+}
+.rating select{margin:5px}
+.rating input{
+ padding:9px;border-radius:6px;border:1px solid #a4c4df;width:100%;
+}
+.review-list{font-size:12px;line-height:1.7;margin-top:12px}
+.review{
+ padding:9px;margin:7px 0;border-radius:7px;background:#ffffff99;
+ border:1px solid white;
+}
+.toast{
+ position:fixed;bottom:20px;right:20px;z-index:50;
+ background:linear-gradient(#fff,#b4d8f2);padding:12px 18px;
+ border-radius:9px;border:1px solid white;box-shadow:0 3px 12px #1238;
+ display:none;font-size:12px;
+}
+@media(max-width:700px){
+ .layout{flex-direction:column;padding:9px}
+ .sidebar{width:100%}
+ main{width:100%;padding:12px}
+ .games{grid-template-columns:repeat(2,minmax(0,1fr))}
+ header{padding:9px}
+ .logo{font-size:22px}
+ .toolbar{flex-wrap:wrap}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+ <div>
+  <div class="logo">Longhorn<span>Bull</span></div>
+  <div class="tagline">GAMING PORTAL · AERO PLEX EDITION 5.2</div>
+ </div>
+ <div class="clock">
+  <div id="time">00:00:00</div>
+  <div id="date">Loading...</div>
+ </div>
+</header>
+
+<div class="layout">
+
+<aside class="sidebar">
+ <div class="side-title">AERO PLEX NAVIGATION</div>
+
+ <button class="nav active" onclick="category('all',this)">◈ All Game Portals</button>
+ <button class="nav" onclick="category('valve',this)">◈ Valve Collection</button>
+ <button class="nav" onclick="category('racing',this)">◈ Racing Games</button>
+ <button class="nav" onclick="category('horror',this)">◈ Horror Games</button>
+ <button class="nav" onclick="category('indie',this)">◈ Indie Games</button>
+ <button class="nav" onclick="category('open',this)">◈ Open World</button>
+ <button class="nav" onclick="category('favorites',this)">★ My Favorites</button>
+
+ <div class="sidebox">
+  <b>PORTAL STATISTICS</b><br>
+  Version: 5.2<br>
+  Game entries: <span id="sideCount">0</span><br>
+  Favorites: <span id="favCount">0</span><br>
+  Status: Ready<br>
+  Interface: Aero Plex
+ </div>
+
+ <div class="sidebox">
+  <b>EXTERNAL LINKS</b><br>
+  <a href="https://store.steampowered.com/" target="_blank">Steam Store</a><br>
+  <a href="https://www.gog.com/" target="_blank">GOG</a><br>
+  <a href="https://itch.io/" target="_blank">itch.io</a><br>
+  <a href="https://www.pcgamingwiki.com/" target="_blank">PCGamingWiki</a>
+ </div>
+
+ <div class="sidebox">
+  <b>ABOUT</b><br>
+  LonghornBull 5.2<br>
+  A fan-made gaming directory inspired by Windows Longhorn 2005.
+ </div>
+</aside>
+
+<main>
+ <div class="welcome">
+  <h1>Welcome to LonghornBull!</h1>
+  <p>
+   Discover games, explore information, view artwork,
+   save favorites and find your next PC gaming adventure.
+  </p>
+ </div>
+
+ <div class="toolbar">
+  <input class="search" id="search" placeholder="Search the game library..."
+    oninput="render()">
+  <select id="sort" onchange="render()">
+   <option value="default">Default order</option>
+   <option value="az">A - Z</option>
+   <option value="za">Z - A</option>
+  </select>
+  <div class="smallbtn" id="resultCount">Games</div>
+ </div>
+
+ <h2 class="section-title" id="sectionTitle">All Game Portals</h2>
+ <div class="games" id="games"></div>
+ <div class="empty" id="empty">
+  <h3>No games found!</h3>
+  Try another search.
+ </div>
+
+ <footer>
+  <b>LonghornBull 5.2</b><br>
+  Gaming Portal · Aero Plex Edition<br>
+  Inspired by Microsoft Windows Longhorn (2005).<br>
+  Independent fan-made project. Not affiliated with Microsoft or game publishers.
+ </footer>
+</main>
+</div>
+
+<!-- GAME INFORMATION WINDOW -->
+
+<div class="overlay" id="overlay" onclick="outsideClose(event)">
+ <div class="modal">
+  <div class="modal-head">
+   <span id="modalTitle">Game Information</span>
+   <button class="close" onclick="closeModal()">✕</button>
+  </div>
+  <div class="modal-content" id="modalContent"></div>
+ </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+/* --------------------------------------------------
+   LONGHORNBULL GAME DATABASE
+   Format: Name | Steam App ID | Category | Description
+-------------------------------------------------- */
+
+const raw = `
+Team Fortress 2|440|valve|A team-based multiplayer shooter featuring nine unique character classes.
+Portal|400|valve|A first-person puzzle game built around a device that creates linked portals.
+Portal 2|620|valve|A puzzle adventure featuring portal mechanics, exploration and cooperative play.
+Grand Theft Auto: Vice City|12110|open|An open-world crime action game set in a fictional 1980s-inspired city.
+Grand Theft Auto: San Andreas|12120|open|An open-world action adventure across a large fictional state.
+Grand Theft Auto III|12100|open|An influential open-world action game set in Liberty City.
+Half-Life|70|valve|A science-fiction first-person shooter following scientist Gordon Freeman.
+Half-Life 2|220|valve|A story-driven shooter with physics-based puzzles and exploration.
+Half-Life 2: Episode One|380|valve|An expansion continuing the Half-Life 2 story.
+Half-Life 2: Episode Two|420|valve|The second episodic continuation of Half-Life 2.
+Left 4 Dead|500|valve|A cooperative survival shooter featuring infected enemies.
+Left 4 Dead 2|550|valve|A cooperative action shooter with new campaigns and infected enemies.
+Counter-Strike|10|valve|A classic competitive tactical first-person shooter.
+Counter-Strike: Source|240|valve|A Source-engine edition of the classic Counter-Strike experience.
+Counter-Strike 2|730|valve|A modern competitive tactical shooter.
+Dota 2|570|valve|A competitive multiplayer online battle arena game.
+Garry's Mod|4000|valve|A physics sandbox offering tools and community-created game modes.
+Day of Defeat|30|valve|A team-based World War II multiplayer shooter.
+Day of Defeat: Source|300|valve|A Source-engine World War II multiplayer shooter.
+Ricochet|60|valve|A futuristic multiplayer action game.
+Deathmatch Classic|40|valve|A classic arena multiplayer shooter.
+Opposing Force|50|valve|A Half-Life expansion following a different perspective.
+Blue Shift|130|valve|A Half-Life expansion featuring a security guard.
+Team Fortress Classic|20|valve|A class-based multiplayer action game.
+Condition Zero|80|valve|A Counter-Strike game featuring multiplayer and missions.
+Killing Floor|1250|horror|A cooperative survival shooter against waves of creatures.
+Killing Floor 2|232090|horror|A cooperative horror shooter with increasingly difficult waves.
+PAYDAY 2|218620|indie|A cooperative crime and heist action game.
+PAYDAY: The Heist|24240|indie|A cooperative first-person heist shooter.
+Terraria|105600|indie|A sandbox adventure with crafting, exploration and building.
+Stardew Valley|413150|indie|A relaxing farming and life simulation game.
+Don't Starve|219740|indie|A survival adventure with a distinctive hand-drawn world.
+Don't Starve Together|322330|indie|A cooperative multiplayer survival adventure.
+RimWorld|294100|indie|A colony management simulation with procedurally generated stories.
+Factorio|427520|indie|A factory-building and automation game.
+Project Zomboid|108600|horror|A detailed zombie survival sandbox.
+Unturned|304930|indie|A block-style open-world survival game.
+Rust|252490|open|A multiplayer survival game focused on gathering and construction.
+DayZ|221100|open|An open-world survival game in a dangerous setting.
+ARK: Survival Evolved|346110|open|A survival adventure featuring prehistoric creatures.
+The Forest|242760|horror|A survival horror game set on a mysterious peninsula.
+Sons Of The Forest|1326470|horror|A survival horror adventure on a remote island.
+Subnautica|264710|open|An underwater exploration and survival adventure.
+Raft|648800|indie|A survival adventure built around a small floating raft.
+Valheim|892970|indie|A cooperative survival and exploration adventure.
+7 Days to Die|251570|horror|A survival crafting game featuring zombie threats.
+The Long Dark|305620|indie|A wilderness survival experience in a frozen landscape.
+Among Us|945360|indie|A social deduction multiplayer game about teamwork and deception.
+Brawlhalla|291550|indie|A free-to-play platform fighting game.
+Warframe|230410|indie|A cooperative science-fiction action game.
+War Thunder|236390|racing|A multiplayer vehicle combat game.
+World of Tanks Blitz|444200|racing|A multiplayer tank combat game.
+World of Warships|552990|racing|A naval combat game featuring historical warships.
+Enlisted|2051620|racing|A squad-based World War II multiplayer shooter.
+Crossout|386180|racing|A vehicle combat game with customizable machines.
+Paladins|444090|indie|A team-based fantasy hero shooter.
+SMITE|386360|indie|A multiplayer online battle arena game featuring mythological characters.
+Apex Legends|1172470|indie|A team-based battle royale shooter.
+PUBG: Battlegrounds|578080|indie|A competitive battle royale survival shooter.
+Rainbow Six Siege|359550|indie|A tactical team-based multiplayer shooter.
+The Division 2|2221490|open|An online action role-playing shooter.
+Ghost Recon Wildlands|460930|open|An open-world tactical action game.
+Far Cry 3|220240|open|An open-world action adventure on a tropical island.
+Far Cry 4|298110|open|An open-world adventure set in the Himalayas.
+Far Cry 5|552520|open|An open-world action game set in Montana.
+Crysis|17300|indie|A science-fiction shooter featuring a powerful nanosuit.
+Crysis 2|108800|indie|A science-fiction shooter set in New York.
+Crysis 3|12810|indie|A futuristic shooter featuring advanced equipment.
+BioShock|7670|horror|A narrative shooter set in the underwater city of Rapture.
+BioShock 2|8850|horror|A sequel exploring more of the underwater city.
+BioShock Infinite|8870|indie|A narrative shooter set in the floating city of Columbia.
+Dishonored|205100|open|A stealth action adventure with supernatural abilities.
+Dishonored 2|403640|open|A stealth action sequel with two playable characters.
+Prey|480490|horror|A science-fiction immersive simulation set aboard a space station.
+Deus Ex: Human Revolution|238010|indie|A cyberpunk role-playing action adventure.
+Deus Ex: Mankind Divided|337000|indie|A cyberpunk action role-playing sequel.
+System Shock 2|238210|horror|A science-fiction horror role-playing adventure.
+System Shock|482400|horror|A remake of a classic science-fiction immersive simulation.
+Skyrim|72850|open|An open-world fantasy role-playing adventure.
+Oblivion|22330|open|A fantasy role-playing adventure in Cyrodiil.
+Morrowind|22320|open|An open-world fantasy role-playing game.
+Fallout 3|22300|open|A post-apocalyptic role-playing adventure.
+Fallout: New Vegas|22380|open|A post-apocalyptic role-playing game in the Mojave.
+Fallout 4|377160|open|An open-world post-apocalyptic role-playing game.
+Fallout Shelter|588430|indie|A vault management simulation.
+The Witcher|20900|open|A fantasy role-playing adventure following Geralt.
+The Witcher 2|20920|open|A story-driven fantasy role-playing sequel.
+The Witcher 3|292030|open|A large open-world fantasy role-playing adventure.
+Cyberpunk 2077|1091500|open|An open-world role-playing game set in Night City.
+Red Dead Redemption 2|1174180|open|An open-world western adventure.
+L.A. Noire|110800|open|A detective adventure set in 1940s Los Angeles.
+Max Payne 3|204100|indie|A third-person action shooter.
+Bully Scholarship Edition|12200|open|An open-world school adventure.
+Sleeping Dogs|202170|open|An open-world action game set in Hong Kong.
+Mafia|40990|open|A crime action adventure set in a fictional 1930s city.
+Mafia II|50130|open|A crime action adventure set in a post-war city.
+Mafia III|360430|open|An open-world crime action game.
+Saints Row: The Third|55230|open|An over-the-top open-world action adventure.
+Saints Row IV|206420|open|An open-world action game with superpowered abilities.
+Just Cause 2|8190|open|An open-world action adventure focused on exploration.
+Just Cause 3|225540|open|An open-world action game with a large island setting.
+Hitman: Blood Money|6860|indie|A stealth action game featuring professional assassination missions.
+HITMAN|236870|indie|A stealth action game with open-ended missions.
+Hitman 3|1659040|indie|A stealth action adventure with elaborate locations.
+Tomb Raider|203160|indie|An action adventure following Lara Croft.
+Rise of the Tomb Raider|391220|indie|An action adventure featuring exploration and puzzles.
+Shadow of the Tomb Raider|750920|indie|An action adventure exploring ancient environments.
+Mirror's Edge|17410|indie|A first-person parkour action game.
+Need for Speed Hot Pursuit|47870|racing|An arcade racing game featuring high-speed police pursuits.
+Need for Speed Most Wanted|1262560|racing|An arcade racing game featuring street races and police chases.
+Need for Speed Shift|24870|racing|A circuit racing game.
+Burnout Paradise|1238080|racing|An open-world arcade racing game.
+TrackMania Nations Forever|11020|racing|A time-trial racing game with creative tracks.
+Trackmania|2225070|racing|A modern track racing game.
+Assetto Corsa|244210|racing|A realistic racing simulation.
+Project CARS|234630|racing|A motorsport racing simulation.
+DiRT Rally|310560|racing|A rally racing simulation.
+F1 2020|1080110|racing|A Formula One racing simulation.
+Euro Truck Simulator 2|227300|racing|A truck driving simulation across Europe.
+American Truck Simulator|270880|racing|A truck driving simulation across the United States.
+BeamNG.drive|284160|racing|A vehicle simulation featuring detailed soft-body physics.
+My Summer Car|516750|racing|A vehicle-building and life simulation.
+CarX Drift Racing Online|635260|racing|A drifting-focused racing game.
+Wreckfest|228380|racing|A demolition racing game.
+FlatOut 2|2990|racing|An arcade racing game featuring vehicle destruction.
+FlatOut Ultimate Carnage|12360|racing|An enhanced edition of a demolition racing game.
+Spintires|263280|racing|An off-road driving simulation.
+SnowRunner|1465360|racing|An off-road driving and cargo simulation.
+The Sims 4|1222670|indie|A life simulation game.
+Cities Skylines|255710|indie|A city-building and management simulation.
+SimCity 4 Deluxe|24780|indie|A classic city-building simulation.
+Planet Coaster|493340|indie|A theme park construction and management game.
+Planet Zoo|703080|indie|A zoo construction and management simulation.
+RollerCoaster Tycoon 3|2700|indie|A theme park management game.
+Prison Architect|233450|indie|A prison construction and management simulation.
+Two Point Hospital|535930|indie|A humorous hospital management game.
+House Flipper|613100|indie|A renovation and interior design simulation.
+PC Building Simulator|621060|indie|A computer building and repair simulation.
+LEGO Star Wars The Skywalker Saga|920210|indie|A LEGO action adventure across the Star Wars saga.
+LEGO Marvel Super Heroes|249130|indie|A LEGO superhero action adventure.
+LEGO Batman 2|213330|indie|A LEGO superhero action adventure.
+Sonic Mania|584400|indie|A retro-inspired Sonic platform game.
+Sonic Generations|71340|indie|A platform adventure combining classic and modern Sonic.
+Rayman Legends|242550|indie|A colorful platform adventure.
+Cuphead|268910|indie|A challenging hand-drawn run-and-gun adventure.
+Hollow Knight|367520|indie|A hand-drawn action adventure in a mysterious kingdom.
+Celeste|504230|indie|A challenging platform adventure about climbing a mountain.
+Hades|1145360|indie|A fast-paced mythological action roguelike.
+Dead Cells|588650|indie|An action platform roguelike.
+Binding of Isaac Rebirth|250900|indie|A procedurally generated action roguelike.
+Enter the Gungeon|311690|indie|A bullet-hell dungeon crawler.
+Risk of Rain 2|632360|indie|A cooperative third-person roguelike adventure.
+Spelunky|239350|indie|A procedurally generated cave exploration platformer.
+Limbo|48000|indie|A monochrome puzzle platform adventure.
+INSIDE|304430|indie|A dark atmospheric puzzle platform adventure.
+Little Nightmares|424840|horror|A dark puzzle platform adventure.
+Braid|26800|indie|A puzzle platform game featuring time manipulation.
+Undertale|391540|indie|A role-playing adventure with unusual combat choices.
+Deltarune|1671210|indie|A story-driven role-playing adventure.
+Five Nights at Freddy's|319510|horror|A survival horror game set in a restaurant.
+Five Nights at Freddy's 2|332800|horror|A sequel featuring new animatronic characters.
+Five Nights at Freddy's 3|354140|horror|A horror game set in a horror attraction.
+Five Nights at Freddy's 4|388090|horror|A horror game set around a bedroom.
+FNAF Security Breach|747660|horror|A first-person survival horror adventure.
+Slender The Arrival|252330|horror|A first-person horror adventure.
+Amnesia The Dark Descent|57300|horror|A first-person psychological horror adventure.
+Outlast|238320|horror|A first-person survival horror adventure.
+Outlast 2|414700|horror|A first-person horror adventure in a remote settlement.
+SOMA|282140|horror|A science-fiction horror adventure underwater.
+Layers of Fear|391720|horror|A psychological horror exploration game.
+Phasmophobia|739630|horror|A cooperative paranormal investigation game.
+Dead by Daylight|381210|horror|An asymmetrical multiplayer horror game.
+The Evil Within|268050|horror|A survival horror action adventure.
+Resident Evil 2|883710|horror|A survival horror remake set in Raccoon City.
+Resident Evil 4|2050650|horror|A survival horror action adventure.
+Resident Evil 7|418370|horror|A first-person survival horror adventure.
+Resident Evil Village|1196590|horror|A survival horror action adventure.
+Street Fighter V|310950|indie|A competitive fighting game.
+Mortal Kombat 11|976310|indie|A fighting game with a large character roster.
+Tekken 7|389730|indie|A competitive 3D fighting game.
+Dragon Ball FighterZ|678950|indie|A fast-paced anime fighting game.
+Guilty Gear Strive|1384160|indie|A stylish anime fighting game.
+Injustice 2|627270|indie|A superhero fighting game.
+Skullgirls 2nd Encore|245170|indie|A hand-drawn 2D fighting game.
+Ultimate Marvel vs Capcom 3|357190|indie|A crossover fighting game.
+Killer Instinct|577940|indie|A combo-focused fighting game.
+Rocket League|252950|racing|A competitive game combining cars and football.
+Fall Guys|1091500|indie|A colorful multiplayer obstacle course game.
+Gang Beasts|285900|indie|A silly physics-based multiplayer fighting game.
+Human Fall Flat|477160|indie|A physics-based puzzle platform adventure.
+`;
+
+const games = raw.trim().split("\n").map((line,index)=>{
+ const [name,id,cat,description]=line.split("|");
+ return {name,id:Number(id),cat,description,index};
+});
+
+const uniqueGames = games.filter((g,i,a)=>
+ a.findIndex(x=>x.name===g.name)===i
+);
+
+/* Add extra real game entries to complete the 194 portal directory. */
+
+const extra = [
+["Portal Stories: Mel",317400,"valve","A community-made Portal adventure."],
+["Black Mesa",362890,"valve","A fan-made reimagining of the original Half-Life."],
+["Counter-Strike: Condition Zero Deleted Scenes",100,"valve","A collection of Counter-Strike single-player missions."],
+["Left 4 Dead 2: The Passing",550,"valve","A campaign expansion within Left 4 Dead 2."],
+["Aperture Desk Job",1902490,"valve","A short comedy experience set in the Portal universe."],
+["Portal Reloaded",1255980,"valve","A community-made puzzle game featuring a third portal."],
+["The Talos Principle",257510,"indie","A first-person philosophical puzzle adventure."],
+["The Talos Principle 2",835960,"indie","A first-person puzzle adventure."],
+["Superliminal",1049410,"indie","A perspective-based puzzle adventure."],
+["The Witness",210970,"indie","An exploration puzzle game on a mysterious island."],
+["Firewatch",383870,"indie","A narrative exploration adventure in a forest."],
+["What Remains of Edith Finch",501300,"indie","A narrative exploration adventure."],
+["Journey",638230,"indie","An atmospheric exploration adventure."],
+["ABZU",384190,"indie","An underwater exploration adventure."],
+["Outer Wilds",753640,"indie","A space exploration mystery."],
+["No Man's Sky",275850,"open","A procedurally generated space exploration game."],
+["Elite Dangerous",359320,"open","A space flight and trading simulation."],
+["Kerbal Space Program",220200,"indie","A spaceflight construction and simulation game."],
+["Oxygen Not Included",457140,"indie","A colony simulation focused on survival."],
+["Dwarf Fortress",975370,"indie","A deep fantasy colony simulation."],
+["Inscryption",1091500,"indie","A card-based mystery adventure."],
+["Slay the Spire",646570,"indie","A deck-building roguelike adventure."],
+["Balatro",2379780,"indie","A poker-inspired roguelike deck builder."],
+["Vampire Survivors",1794680,"indie","A time-survival action roguelike."],
+["Ori and the Blind Forest",261570,"indie","A beautiful platform adventure."],
+["Ori and the Will of the Wisps",1057090,"indie","A platform adventure featuring exploration."],
+["A Hat in Time",253230,"indie","A 3D platform adventure."],
+["Psychonauts",3830,"indie","A platform adventure set inside unusual minds."],
+["Psychonauts 2",607080,"indie","A 3D platform adventure."],
+["Super Meat Boy",40800,"indie","A challenging precision platform game."],
+["The Stanley Parable",221910,"indie","An interactive narrative adventure."],
+["The Stanley Parable Ultra Deluxe",1703340,"indie","An expanded interactive narrative adventure."],
+["Portal 2 Workshop",620,"valve","Community-created Portal 2 content."],
+["Lethal Company",1966720,"horror","A cooperative exploration and survival game."],
+["Content Warning",2881650,"horror","A cooperative horror recording adventure."],
+["Devour",1274570,"horror","A cooperative survival horror game."],
+["Cry of Fear",223710,"horror","A psychological horror adventure."],
+["Darkwood",274520,"horror","A top-down survival horror game."],
+["The Mortuary Assistant",1295920,"horror","A first-person horror simulation."],
+["Alien Isolation",214490,"horror","A survival horror game set in the Alien universe."],
+["SCP Containment Breach",0,"horror","A classic community-made SCP survival horror game."],
+["Amnesia Rebirth",999220,"horror","A first-person psychological horror adventure."],
+["Amnesia The Bunker",1944430,"horror","A survival horror adventure in a bunker."],
+["Metro 2033 Redux",286690,"horror","A post-apocalyptic first-person shooter."],
+["Metro Last Light Redux",287390,"horror","A post-apocalyptic action adventure."],
+["Metro Exodus",412020,"open","A story-driven post-apocalyptic shooter."],
+["Dying Light",239140,"horror","An open-world zombie action adventure."],
+["Dying Light 2",534380,"open","An open-world zombie action adventure."],
+["Dead Island",91310,"horror","A zombie survival action game."],
+["Dead Island 2",934700,"horror","A zombie action adventure."],
+["State of Decay 2",495420,"horror","A community-focused zombie survival game."],
+["The Walking Dead",207610,"horror","A narrative adventure based on the comic universe."],
+["The Walking Dead Saints and Sinners",916840,"horror","A VR survival horror adventure."],
+["Portal Knights",374040,"indie","A sandbox action adventure."],
+["Core Keeper",1621690,"indie","A mining and exploration sandbox."],
+["Astroneer",361420,"indie","A space exploration and crafting adventure."],
+["Satisfactory",526870,"indie","A first-person factory building game."],
+["Dyson Sphere Program",1366540,"indie","A space-based factory building simulation."],
+["Oxygen Not Included Spaced Out",457140,"indie","A colony simulation expansion."],
+["Mount and Blade Warband",48700,"open","A medieval action role-playing sandbox."],
+["Mount and Blade II Bannerlord",261550,"open","A medieval action strategy adventure."],
+["Kingdom Come Deliverance",379430,"open","A historical open-world role-playing game."],
+["Kingdom Come Deliverance II",1771300,"open","A historical role-playing adventure."],
+["Dragon Age Origins",17450,"open","A fantasy role-playing adventure."],
+["Dragon Age Inquisition",1222690,"open","A fantasy action role-playing game."],
+["Mass Effect Legendary Edition",1328670,"open","A science-fiction role-playing trilogy."],
+["Mass Effect Andromeda",1238000,"open","A science-fiction exploration adventure."],
+["Dragon's Dogma Dark Arisen",367500,"open","A fantasy action role-playing adventure."],
+["Dragon's Dogma 2",2054970,"open","An open-world fantasy action role-playing game."],
+["Dark Souls Remastered",570940,"indie","A challenging action role-playing adventure."],
+["Dark Souls II",236430,"indie","A challenging fantasy action adventure."],
+["Dark Souls III",374320,"indie","A challenging fantasy action adventure."],
+["Elden Ring",1245620,"open","An open-world fantasy action role-playing adventure."],
+["Sekiro Shadows Die Twice",814380,"indie","A challenging action adventure."],
+["Lies of P",1627720,"indie","A dark fantasy action role-playing adventure."],
+["Monster Hunter World",582010,"indie","A cooperative monster hunting adventure."],
+["Monster Hunter Rise",1446780,"indie","An action hunting adventure."],
+["Final Fantasy VII Remake",1462040,"indie","A modern action role-playing adventure."],
+["Final Fantasy XV",637650,"open","An open-world fantasy role-playing adventure."],
+["Final Fantasy XIV",39210,"indie","A massively multiplayer online role-playing game."],
+["Persona 5 Royal",1687950,"indie","A stylish turn-based role-playing adventure."],
+["Persona 4 Golden",1113000,"indie","A role-playing adventure with social simulation."],
+["Yakuza 0",638970,"open","A crime action adventure set in Japan."],
+["Yakuza Kiwami",834530,"open","A crime action adventure remake."],
+["Like a Dragon Infinite Wealth",2072450,"open","A turn-based role-playing adventure."],
+["Watch Dogs",243470,"open","An open-world hacking action adventure."],
+["Watch Dogs 2",447040,"open","An open-world hacking adventure."],
+["Watch Dogs Legion",2239550,"open","An open-world action adventure."],
+["Assassin's Creed II",33230,"open","A historical action adventure."],
+["Assassin's Creed Brotherhood",48190,"open","A historical action adventure."],
+["Assassin's Creed IV Black Flag",242050,"open","A pirate-themed open-world adventure."],
+["Assassin's Creed Origins",582160,"open","An open-world historical action adventure."],
+["Assassin's Creed Odyssey",812140,"open","An open-world ancient Greek adventure."],
+["Assassin's Creed Valhalla",2208920,"open","A Viking-themed open-world adventure."],
+["Forza Horizon 4",1293830,"racing","An open-world festival racing game."],
+["Forza Horizon 5",1551360,"racing","An open-world racing adventure in Mexico."],
+["Forza Motorsport",2440510,"racing","A circuit racing simulation."],
+["The Crew 2",646910,"racing","An open-world motorsport game."],
+["The Crew Motorfest",2698940,"racing","An open-world racing festival game."],
+["GRID Autosport",255220,"racing","A motorsport racing game."],
+["Dirt 3",321040,"racing","An arcade rally racing game."],
+["Dirt 5",1038250,"racing","An off-road racing game."],
+["F1 23",2108330,"racing","A Formula One racing game."],
+["F1 24",2488620,"racing","A Formula One racing game."],
+["MotoGP 24",2581700,"racing","A motorcycle racing simulation."],
+["Descenders",681280,"racing","A downhill mountain biking game."],
+["Lonely Mountains Downhill",711540,"racing","A downhill mountain biking adventure."],
+["Trials Rising",641080,"racing","A physics-based motorcycle platform racer."],
+["Art of Rally",550320,"racing","A stylized rally racing game."],
+["Wreckfest 2",1203190,"racing","A demolition racing sequel."],
+["Need for Speed Heat",1222680,"racing","An open-world street racing game."],
+["Need for Speed Unbound",1846380,"racing","A street racing game."],
+["Need for Speed Payback",1262580,"racing","An action racing adventure."],
+["Need for Speed Rivals",1262600,"racing","An arcade racing game featuring police pursuits."],
+["Burnout Paradise Remastered",1238080,"racing","An arcade racing game."],
+["Grand Theft Auto V",271590,"open","An open-world crime action adventure."],
+["Grand Theft Auto IV",12210,"open","An open-world action adventure set in Liberty City."],
+["Grand Theft Auto Trilogy Definitive Edition",1547000,"open","Three classic open-world action adventures."],
+["Red Dead Redemption",2668510,"open","A western open-world action adventure."],
+["L.A. Noire Complete Edition",110800,"open","A detective adventure set in Los Angeles."],
+["Watch Dogs Complete Edition",243470,"open","An open-world hacking action game."],
+["Just Cause 4",517630,"open","An open-world action adventure."],
+["Mad Max",234140,"open","An open-world vehicle combat adventure."],
+["Middle-earth Shadow of Mordor",241930,"open","A fantasy action adventure."],
+["Middle-earth Shadow of War",356190,"open","A fantasy action adventure."],
+["Hogwarts Legacy",990080,"open","An open-world fantasy school adventure."],
+["The Outer Worlds",578650,"open","A science-fiction role-playing adventure."],
+["Outer Wilds Echoes of the Eye",1622100,"indie","An expansion to a space exploration mystery."],
+["A Plague Tale Innocence",752590,"open","A story-driven stealth adventure."],
+["A Plague Tale Requiem",1182900,"open","A story-driven adventure sequel."],
+["Control",870780,"indie","A supernatural action adventure."],
+["Alan Wake",108710,"horror","A psychological action thriller."],
+["Alan Wake 2",1087100,"horror","A psychological survival horror adventure."],
+["Quantum Break",474960,"indie","A science-fiction action adventure."],
+["Sunset Overdrive",847370,"indie","A colorful open-world action game."],
+["Hi-Fi Rush",1817230,"indie","A rhythm-based action adventure."],
+["DOOM 3",208200,"horror","A science-fiction horror shooter."],
+["DOOM 2016",379720,"indie","A fast-paced first-person shooter."],
+["DOOM Eternal",782330,"indie","A fast-paced first-person shooter sequel."],
+["Quake",2310,"indie","A classic arena first-person shooter."],
+["Quake II",2320,"indie","A classic science-fiction shooter."],
+["Quake III Arena",2200,"indie","A classic multiplayer arena shooter."],
+["Unreal Tournament 2004",13230,"indie","A classic arena multiplayer shooter."],
+["Serious Sam HD",41000,"indie","An arcade-style first-person shooter."],
+["Painkiller Black Edition",39530,"indie","A fast-paced supernatural shooter."],
+["F.E.A.R.",21090,"horror","A first-person shooter with supernatural horror."],
+["F.E.A.R. 2",16450,"horror","A horror-themed first-person shooter."],
+["F.E.A.R. 3",21100,"horror","A cooperative horror action shooter."],
+["Titanfall 2",1237970,"indie","A science-fiction shooter featuring pilot and Titan combat."],
+["Battlefield 4",1238860,"indie","A large-scale modern military shooter."],
+["Battlefield 1",1238840,"indie","A World War I first-person shooter."],
+["Battlefield V",1238810,"indie","A World War II first-person shooter."],
+["Battlefield 2042",1517290,"indie","A futuristic multiplayer military shooter."],
+["Call of Duty Modern Warfare",2000950,"indie","A modern military first-person shooter."],
+["Call of Duty Black Ops III",311210,"indie","A futuristic military shooter."],
+["Call of Duty World at War",10090,"indie","A World War II first-person shooter."],
+["Call of Duty WWII",476600,"indie","A World War II military shooter."],
+["Insurgency Sandstorm",581320,"indie","A tactical multiplayer first-person shooter."],
+["Squad",393380,"indie","A large-scale tactical multiplayer shooter."],
+["Ready or Not",1144200,"indie","A tactical first-person shooter."],
+["Hell Let Loose",686810,"indie","A large-scale World War II shooter."],
+["Chivalry 2",1824220,"indie","A medieval multiplayer combat game."],
+["Mordhau",629760,"indie","A medieval multiplayer combat game."],
+["Mount and Blade Warband Napoleonic Wars",306140,"open","A medieval and historical multiplayer expansion."],
+["Age of Empires II Definitive Edition",813780,"indie","A classic real-time strategy game."],
+["Age of Empires IV",1466860,"indie","A historical real-time strategy game."],
+["Civilization VI",289070,"indie","A turn-based civilization strategy game."],
+["Civilization V",8930,"indie","A turn-based strategy game."],
+["Command and Conquer Remastered",1213210,"indie","A remastered real-time strategy collection."],
+["StarCraft II",0,"indie","A science-fiction real-time strategy game."],
+["Warcraft III Reforged",0,"indie","A fantasy real-time strategy game."],
+["XCOM 2",268500,"indie","A turn-based tactical strategy game."],
+["Into the Breach",590380,"indie","A turn-based tactical strategy game."],
+["FTL Faster Than Light",212680,"indie","A space exploration strategy game."],
+["This War of Mine",282070,"indie","A survival strategy game."],
+["Papers Please",239030,"indie","A document inspection simulation."],
+["Not Tonight",733790,"indie","A document checking and management adventure."],
+["Beholder",475550,"indie","A dystopian management adventure."],
+["Papers Please The Short Film",0,"indie","A short film inspired by the game."],
+["Mini Motorways",1127500,"indie","A road network planning simulation."],
+["Mini Metro",287980,"indie","A minimalist transport management game."],
+["Dorfromantik",1455840,"indie","A relaxing tile-based landscape puzzle game."],
+["Unpacking",1135690,"indie","A relaxing puzzle game about unpacking belongings."],
+["A Little to the Left",1629520,"indie","A cozy organization puzzle game."],
+["PowerWash Simulator",1290000,"indie","A cleaning simulation game."],
+["Gas Station Simulator",1149620,"indie","A gas station management simulation."],
+["Internet Cafe Simulator",1136160,"indie","An internet cafe management simulation."],
+["Internet Cafe Simulator 2",1563180,"indie","A sequel to an internet cafe management game."],
+["Thief Simulator",704850,"indie","A stealth-based simulation game."],
+["Car Mechanic Simulator 2021",1190000,"indie","A car repair and workshop simulation."],
+["Ship Graveyard Simulator",1286880,"indie","A ship dismantling simulation."],
+["Airport CEO",673610,"indie","An airport construction and management game."],
+["Game Dev Tycoon",239820,"indie","A game development business simulation."],
+["Mad Games Tycoon 2",1342330,"indie","A game studio management simulation."],
+["Software Inc",362620,"indie","A software company management simulation."],
+["Startup Company",606800,"indie","A startup business management simulation."],
+["Big Ambitions",1331550,"indie","A business and life simulation game."],
+["The Movies",0,"indie","A classic movie studio management simulation."],
+["OpenTTD",1536610,"indie","An open-source transport management game."],
+["Transport Fever 2",1066780,"indie","A transport network management simulation."],
+["Railway Empire",503940,"indie","A railway management simulation."],
+["Train Sim World 4",2362300,"racing","A railway driving simulation."],
+["Microsoft Flight Simulator",1250410,"indie","A detailed civil aviation flight simulation."],
+["X-Plane 12",2014780,"indie","A professional-style flight simulation."],
+["SimplePlanes",397340,"indie","An aircraft building and flying game."],
+["Besiege",346010,"indie","A physics-based machine building game."],
+["Trailmakers",585420,"indie","A vehicle construction adventure."],
+["Scrap Mechanic",387990,"indie","A creative mechanical sandbox."],
+["Brick Rigs",552100,"indie","A vehicle construction and physics sandbox."],
+["Teardown",1167630,"indie","A voxel-based destruction and heist game."],
+["People Playground",1118200,"indie","A physics sandbox game."],
+["Universe Sandbox",230290,"indie","A space and physics simulation."],
+["Space Engineers",244850,"indie","A space engineering sandbox."],
+["Empyrion Galactic Survival",383120,"open","A space survival and construction adventure."],
+["Starbound",211820,"indie","A space exploration sandbox."],
+["Terraria Otherworld",0,"indie","An announced spin-off of Terraria."],
+["Core Keeper Paws and Claws",1621690,"indie","An expansion to a mining and exploration adventure."],
+["Minecraft",0,"indie","A block-based sandbox building and survival game."]
+];
+
+extra.forEach((g,i)=>{
+ if(!uniqueGames.some(x=>x.name.toLowerCase()===g[0].toLowerCase())){
+  uniqueGames.push({
+   name:g[0],id:g[1],cat:g[2],description:g[3],
+   index:uniqueGames.length
+  });
+ }
+});
+
+/* Some entries use an external search rather than a Steam ID. */
+
+function storeURL(g){
+ if(g.id>0) return "https://store.steampowered.com/app/"+g.id+"/";
+ return "https://store.steampowered.com/search/?term="+encodeURIComponent(g.name);
+}
+
+function imageURL(g,type){
+ if(!g.id) return "";
+ if(type==="header")
+  return "https://cdn.cloudflare.steamstatic.com/steam/apps/"+g.id+"/header.jpg";
+ return "https://cdn.cloudflare.steamstatic.com/steam/apps/"+g.id+"/library_hero.jpg";
+}
+
+let activeCategory="all";
+let currentGame=null;
+
+function favorites(){
+ try{return JSON.parse(localStorage.getItem("lb52_favorites")||"[]")}
+ catch(e){return []}
+}
+
+function ratings(){
+ try{return JSON.parse(localStorage.getItem("lb52_ratings")||"{}")}
+ catch(e){return {}}
+}
+
+function reviews(){
+ try{return JSON.parse(localStorage.getItem("lb52_reviews")||"{}")}
+ catch(e){return {}}
+}
+
+function save(key,value){
+ localStorage.setItem(key,JSON.stringify(value));
+}
+
+function notify(message){
+ const toast=document.getElementById("toast");
+ toast.textContent=message;
+ toast.style.display="block";
+ setTimeout(()=>toast.style.display="none",2200);
+}
+
+function isFavorite(g){
+ return favorites().includes(g.name);
+}
+
+function toggleFavorite(name,event){
+ if(event) event.stopPropagation();
+ let f=favorites();
+ if(f.includes(name)) f=f.filter(x=>x!==name);
+ else f.push(name);
+ save("lb52_favorites",f);
+ document.getElementById("favCount").textContent=f.length;
+ render();
+ notify(f.includes(name)?"Added to favorites!":"Removed from favorites.");
+}
+
+function render(){
+ const q=document.getElementById("search").value.toLowerCase();
+ const sort=document.getElementById("sort").value;
+ let list=uniqueGames.filter(g=>{
+  const match=g.name.toLowerCase().includes(q);
+  const cat=activeCategory==="all" ||
+   (activeCategory==="favorites" && isFavorite(g)) ||
+   g.cat===activeCategory;
+  return match && cat;
+ });
+
+ if(sort==="az") list.sort((a,b)=>a.name.localeCompare(b.name));
+ if(sort==="za") list.sort((a,b)=>b.name.localeCompare(a.name));
+
+ const container=document.getElementById("games");
+ container.innerHTML="";
+
+ list.forEach(g=>{
+  const card=document.createElement("article");
+  card.className="game";
+
+  const img=document.createElement("img");
+  img.className="artwork";
+  img.alt=g.name+" artwork";
+  img.loading="lazy";
+  img.src=imageURL(g,"header");
+
+  img.onerror=function(){
+   this.onerror=null;
+   this.style.display="none";
+   const fallback=document.createElement("div");
+   fallback.style.cssText="height:76px;border-radius:6px;background:linear-gradient(135deg,#245c91,#8cc9f1);display:grid;place-items:center;color:white;font-size:22px;font-weight:bold";
+   fallback.textContent=g.name.substring(0,2).toUpperCase();
+   card.insertBefore(fallback,card.firstChild);
+  };
+
+  const title=document.createElement("a");
+  title.href="#";
+  title.className="game-name";
+  title.textContent=g.name;
+  title.onclick=e=>{e.preventDefault();openGame(g)};
+
+  const actions=document.createElement("div");
+  actions.className="game-actions";
+
+  const details=document.createElement("button");
+  details.className="game-link";
+  details.textContent="Game details →";
+  details.onclick=()=>openGame(g);
+
+  const fav=document.createElement("button");
+  fav.className="favorite"+(isFavorite(g)?" on":"");
+  fav.textContent=isFavorite(g)?"★":"☆";
+  fav.title="Add to favorites";
+  fav.onclick=e=>toggleFavorite(g.name,e);
+
+  actions.append(details,fav);
+  card.append(img,title,actions);
+  container.appendChild(card);
+ });
+
+ document.getElementById("resultCount").textContent=list.length+" Games";
+ document.getElementById("empty").style.display=list.length?"none":"block";
+ document.getElementById("sideCount").textContent=uniqueGames.length;
+ document.getElementById("favCount").textContent=favorites().length;
+}
+
+function category(cat,button){
+ activeCategory=cat;
+ document.querySelectorAll(".nav").forEach(b=>b.classList.remove("active"));
+ button.classList.add("active");
+
+ const names={
+ all:"All Game Portals",
+ valve:"Valve Collection",
+ racing:"Racing Games",
+ horror:"Horror Games",
+ indie:"Indie Games",
+ open:"Open World Games",
+ favorites:"My Favorite Games"
+ };
+
+ document.getElementById("sectionTitle").textContent=names[cat];
+ render();
+}
+
+function openGame(g){
+ currentGame=g;
+
+ const ratingData=ratings();
+ const reviewData=reviews();
+ const gameReviews=reviewData[g.name]||[];
+ const myRating=ratingData[g.name]||"";
+ const average=gameReviews.length?
+  (gameReviews.reduce((s,r)=>s+r.rating,0)/gameReviews.length).toFixed(1):
+  "No ratings yet";
+
+ const hero=imageURL(g,"hero");
+ const header=imageURL(g,"header");
+
+ document.getElementById("modalTitle").textContent=g.name;
+
+ document.getElementById("modalContent").innerHTML=`
+  <img class="hero" src="${header}" alt="${g.name} artwork"
+   onerror="this.style.display='none'">
+
+  <h2>${escapeHTML(g.name)}</h2>
+  <p class="detail-desc">${escapeHTML(g.description)}</p>
+
+  <div class="detail-links">
+   <a class="action" href="${storeURL(g)}" target="_blank" rel="noopener">
+    Open Steam Store ↗
+   </a>
+   <a class="action" href="https://www.pcgamingwiki.com/wiki/${encodeURIComponent(g.name.replaceAll(" ","_"))}"
+    target="_blank" rel="noopener">PC Gaming Wiki ↗</a>
+   <button class="action" onclick="toggleFavorite('${escapeJS(g.name)}')">
+    ${isFavorite(g)?"★ Remove Favorite":"☆ Add Favorite"}
+   </button>
+  </div>
+
+  <h3>Game Artwork</h3>
+  <div class="screenshots">
+   <img src="${header}" alt="Game header artwork"
+    onerror="this.style.display='none'">
+   <img src="${hero}" alt="Game library artwork"
+    onerror="this.style.display='none'">
+  </div>
+
+  <div class="rating">
+   <h3>Community Rating</h3>
+   <p>Local user rating: <b>${average}</b>
+   (${gameReviews.length} reviews)</p>
+   <p><small>Ratings are stored in this browser, not shared online.</small></p>
+
+   <label>Your rating:</label><br>
+   <select id="userRating">
+    <option value="">Select rating</option>
+    <option value="1">1 / 5</option>
+    <option value="2">2 / 5</option>
+    <option value="3">3 / 5</option>
+    <option value="4">4 / 5</option>
+    <option value="5">5 / 5</option>
+   </select>
+
+   <input id="reviewText" maxlength="250"
+    placeholder="Write a short review (optional)..."
+    style="margin-top:8px">
+
+   <button class="action" onclick="submitReview()">Submit review</button>
+
+   <div class="review-list">
+    <b>Local reviews</b>
+    <div id="reviewList"></div>
+   </div>
+  </div>
+ `;
+
+ document.getElementById("userRating").value=myRating;
+ showReviews(g.name);
+ document.getElementById("overlay").style.display="flex";
+}
+
+function escapeHTML(s){
+ return String(s).replace(/[&<>"']/g,c=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ })[c]);
+}
+
+function escapeJS(s){
+ return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+}
+
+function showReviews(name){
+ const list=reviews()[name]||[];
+ const target=document.getElementById("reviewList");
+ if(!target)return;
+ target.innerHTML=list.length?list.map(r=>`
+  <div class="review">
+   <b>${r.rating}/5 ★</b><br>
+   ${escapeHTML(r.text||"No written review.")}
+  </div>
+ `).join(""):"No local reviews yet.";
+}
+
+function submitReview(){
+ if(!currentGame)return;
+ const rating=Number(document.getElementById("userRating").value);
+ const textValue=document.getElementById("reviewText").value.trim();
+
+ if(!rating){notify("Please choose a rating.");return}
+
+ const data=ratings();
+ data[currentGame.name]=rating;
+ save("lb52_ratings",data);
+
+ const all=reviews();
+ if(!all[currentGame.name])all[currentGame.name]=[];
+
+ all[currentGame.name].push({
+  rating:rating,
+  text:textValue
+ });
+
+ save("lb52_reviews",all);
+ openGame(currentGame);
+ notify("Your local review was saved!");
+}
+
+function closeModal(){
+ document.getElementById("overlay").style.display="none";
+ currentGame=null;
+}
+
+function outsideClose(e){
+ if(e.target.id==="overlay")closeModal();
+}
+
+document.addEventListener("keydown",e=>{
+ if(e.key==="Escape")closeModal();
+});
+
+/* AERO CLOCK */
+
+function updateClock(){
+ const now=new Date();
+ document.getElementById("time").textContent=
+  now.toLocaleTimeString("en-GB");
+ document.getElementById("date").textContent=
+  now.toLocaleDateString("en-GB",{
+   weekday:"short",day:"numeric",month:"short",year:"numeric"
+  });
+}
+
+setInterval(updateClock,1000);
+updateClock();
+
+document.getElementById("sideCount").textContent=uniqueGames.length;
+render();
+
+</script>
+</body>
+</html>
